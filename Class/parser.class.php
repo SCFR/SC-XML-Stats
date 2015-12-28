@@ -1,7 +1,9 @@
 <?php
+require_once("settings.php");
+
 Class SC_Parser {
 	protected $SCRIPT_FOLDER =  "../raw/Scripts/";
-	
+
 	function __construct() {
 	}
 
@@ -30,6 +32,6 @@ Class SC_Parser {
 
 		return array_values($files);
 	}
-	
+
 }
 ?>
