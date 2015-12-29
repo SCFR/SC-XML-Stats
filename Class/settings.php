@@ -8,9 +8,12 @@ $_SETTINGS = array(
     "version" => "2.0",
     "scripts" => "C:\Users\david\Documents\GitHub\SC-XML-Stats\\raw\Scripts",
     "PATHS" => array(
-      "engine"    => "/Entities/Items/XML/Spaceships/Thrusters/",
-      "thruster" => "/Entities/Items/XML/Spaceships/Thrusters/",
-      "ship"
+      "engine"        => "/Entities/Items/XML/Spaceships/Thrusters/",
+      "thruster"      => "/Entities/Items/XML/Spaceships/Thrusters/",
+      "ship"          => "",
+      "weaponMount"  => "/Entities/Items/XML/Spaceships/Weapon_Mounts/",
+      "weaponMissile" => "/Entities/Items/XML/Spaceships/Missile_Racks/",
+      "weapon"        => "/Entities/Items/XML/Spaceships/Weapons/"
     )
   )
 );

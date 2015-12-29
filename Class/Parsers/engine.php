@@ -16,9 +16,6 @@
       $this->get_stats($this->XML->params->param);
     }
 
-    function get_infos() {
-      return $this->params;
-    }
 
   }
 

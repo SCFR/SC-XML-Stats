@@ -25,8 +25,22 @@
       }
     }
 
+    function returnItem($portName) {
+      $ar = array(
+          "hardpoint" => $portName,
+          "size"			=> $this->get_size(),
+          "DEFAULT" 	=> $this->get_infos()
+      );
+
+      return $ar;
+    }
+
     function get_size() {
       return $this->params['itemSize'];
+    }
+
+    function get_infos() {
+      return $this->params;
     }
 
 
