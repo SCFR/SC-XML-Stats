@@ -8,11 +8,15 @@
     protected $params;
     protected $children;
     protected $minSize = 0;
+    protected $OK = true;
 
     function __construct($item) {
       $item = (array) $item;
       $this->raw = $item;
       $this->itemName = $item["@attributes"]["itemName"];
+
+      if(!$this->itemName) throw new Exception("NoObjectName");
+
       $this->set_constructor();
     }
 
@@ -35,7 +39,6 @@
           "hasChild"  => "false",
           "DEFAULT" 	=> $this->get_infos(),
       );
-
 
       if(is_array($this->children)) {$ar['hasChild'] = true; $ar['CHILDREN'] = $this->children;}
       return $ar;

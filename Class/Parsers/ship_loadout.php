@@ -41,8 +41,14 @@ require_once("weapon.php");
 					case "weapon":
 					case "weaponMount":
 					case "weaponMissile":
-						$s = new SC_Weapon($item);
-						$this->loadout['WEAPONS'][] = $s->returnHardpoint($item["@attributes"]['portName']);
+						try {
+						    $s = new SC_Weapon($item);
+							  $put =	$s->returnHardpoint($item["@attributes"]['portName']);
+						} catch (Exception $e) {
+						    $put = "ERROR : ".$e->getMessage();
+						}
+						$this->loadout['WEAPONS'][] = $put;
+
 					break;
 					default:
 					break;
@@ -59,6 +65,7 @@ require_once("weapon.php");
 				if($test) {
 					if 			($match[1] == "thruster" && strpos($item["@attributes"]['portName'], "engine")	 !== FALSE) return "engine";
 					elseif 	($match[1] == "weapon"	 && strpos($item["@attributes"]['portName'], "missilerack")	 !== FALSE) return "weaponMissile";
+					elseif 	($match[1] == "class") return "weapon";
 					else return $match[1];
 				}
 				else return "misc";
@@ -80,7 +87,7 @@ require_once("weapon.php");
 		}
 	}
 
-	$t = new SC_ship_loadout($_SETTINGS['STARCITIZEN']['scripts']."\Loadouts\Vehicles\Default_Loadout_AEGS_Avenger.xml");
+	$t = new SC_ship_loadout($_SETTINGS['STARCITIZEN']['scripts']."\Loadouts\Vehicles\Default_Loadout_ANVL_Hornet_F7C.xml");
 
 	$t->mu_print();
 	//
