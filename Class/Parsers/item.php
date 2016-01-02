@@ -6,9 +6,13 @@
     protected $itemName;
     protected $constructor;
     protected $params;
+    protected $children;
+    protected $minSize = 0;
 
-    function __construct($name) {
-      $this->itemName = $name;
+    function __construct($item) {
+      $item = (array) $item;
+      $this->raw = $item;
+      $this->itemName = $item["@attributes"]["itemName"];
       $this->set_constructor();
     }
 
@@ -25,13 +29,15 @@
       }
     }
 
-    function returnItem($portName) {
+    function returnHardpoint($portName) {
       $ar = array(
           "hardpoint" => $portName,
-          "size"			=> $this->get_size(),
-          "DEFAULT" 	=> $this->get_infos()
+          "hasChild"  => "false",
+          "DEFAULT" 	=> $this->get_infos(),
       );
 
+
+      if(is_array($this->children)) {$ar['hasChild'] = true; $ar['CHILDREN'] = $this->children;}
       return $ar;
     }
 
@@ -40,9 +46,29 @@
     }
 
     function get_infos() {
+      if($this->minSize > 0 && $this->maxSize > 0) {
+        $this->params['minSize'] = $this->minSize;
+        $this->params['maxSize'] = $this->maxSize;
+      }
       return $this->params;
     }
 
+    function rsearch($folder, $pattern) {
+      global $_SETTINGS;
+      $fileInfo = false;
+      $folder = $_SETTINGS['STARCITIZEN']['scripts'].$folder;
+      $dir = new RecursiveDirectoryIterator($folder);
+      $ite = new RecursiveIteratorIterator($dir);
+      $files = new RegexIterator($ite, $pattern, RegexIterator::GET_MATCH);
+      $fileList = array();
+      foreach($files as $file) {
+        $fileInfo = array();
+          $fileInfo["fileName"] = $file[0].".xml";
+          $fileInfo['sub'] = $ite->getSubPath().'/';
+          $fileInfo['file'] = $folder.$fileInfo['sub'].$fileInfo['fileName'];
+      }
+      return $fileInfo;
+    }
 
   }
 

@@ -6,10 +6,10 @@
     protected $path;
     private $XML;
 
-    function __construct($name) {
-      parent::__construct($name);
+    function __construct($item) {
+      parent::__construct($item);
     	global $_SETTINGS;
-      $this->path = $_SETTINGS['STARCITIZEN']['scripts'].$_SETTINGS['STARCITIZEN']['PATHS']['engine'].$this->constructor."/".$name.".xml";
+      $this->path = $_SETTINGS['STARCITIZEN']['scripts'].$_SETTINGS['STARCITIZEN']['PATHS']['engine'].$this->constructor."/".$this->itemName.".xml";
 
       $this->XML = simplexml_load_file($this->path);
 

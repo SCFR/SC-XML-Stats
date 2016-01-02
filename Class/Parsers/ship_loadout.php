@@ -35,14 +35,14 @@ require_once("weapon.php");
 
 				switch($this->getItemType($item)) {
 					case "engine":
-						$e = new SC_Engine($item["@attributes"]["itemName"]);
-						$this->loadout['ENGINES'][] = $e->returnItem($item["@attributes"]['portName']);
+						$e = new SC_Engine($item);
+						$this->loadout['ENGINES'][] = $e->returnHardpoint($item["@attributes"]['portName']);
 					break;
 					case "weapon":
 					case "weaponMount":
 					case "weaponMissile":
-						$s = new SC_Weapon($item["@attributes"]["itemName"], $this->getItemType($item));
-						$this->loadout['WEAPONS'][] = $s->returnItem($item["@attributes"]['portName']);
+						$s = new SC_Weapon($item);
+						$this->loadout['WEAPONS'][] = $s->returnHardpoint($item["@attributes"]['portName']);
 					break;
 					default:
 					break;

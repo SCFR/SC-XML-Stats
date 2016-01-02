@@ -13,7 +13,8 @@ $_SETTINGS = array(
       "ship"          => "",
       "weaponMount"  => "/Entities/Items/XML/Spaceships/Weapon_Mounts/",
       "weaponMissile" => "/Entities/Items/XML/Spaceships/Missile_Racks/",
-      "weapon"        => "/Entities/Items/XML/Spaceships/Weapons/"
+      "weapon"        => "/Entities/Items/XML/Spaceships/Weapons/",
+      "ammo"          => "/Entities/Items/XML/Spaceships/Ammo/"
     )
   )
 );
