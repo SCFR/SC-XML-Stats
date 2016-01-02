@@ -1,20 +1,26 @@
 <?php
-require_once('../parser.class.php');
-require_once("engine.php");
-require_once("weapon.php");
-
-	Class SC_ship_loadout extends SC_Parser {
+	Class SC_Loadout implements SC_Parser {
 
 		private $file;
 		private $XML_load;
 		private $XML_ship;
+		private $error;
+		private $sucess= true;
 
 		private $loadout;
 		private $RELATIVE_PATH = "../";
 
 		function __construct($file) {
-			$this->file = $file;
-			$this->Parse_Loadout(simplexml_load_file($file));
+
+
+			try {
+				$this->file = $file;
+				$this->setFileName();
+				$this->Parse_Loadout(simplexml_load_file($file));
+			}
+			catch(Exception $e) {
+				$this->error = $e->getMessage();
+			}
 
 		}
 
@@ -23,8 +29,12 @@ require_once("weapon.php");
 			$this->parse_equipment();
 		}
 
-		function get_main_hardpoints() {
+		function setFileName() {
+			$file = str_replace("\\","/", $this->file);
+			$file = str_replace(".xml","", $file);
+			$t = explode("/", $file);
 
+			$this->itemName = $t[sizeof($t)-1];
 		}
 
 		function parse_equipment() {
@@ -46,6 +56,7 @@ require_once("weapon.php");
 							  $put =	$s->returnHardpoint($item["@attributes"]['portName']);
 						} catch (Exception $e) {
 						    $put = "ERROR : ".$e->getMessage();
+								throw $e;
 						}
 						$this->loadout['WEAPONS'][] = $put;
 
@@ -80,15 +91,25 @@ require_once("weapon.php");
 			return $xml;
 		}
 
-		function mu_print() {
-			echo "<pre>";
-			print_r($this->loadout);
-			echo "</pre>";
+
+
+		function saveJson($folder) {
+			global $_SETTINGS;
+			file_put_contents($_SETTINGS["SOFT"]["jsonPath"].$folder.$this->itemName.".json", json_encode($this->getData()));
 		}
+
+		function getError() {
+			return $this->error;
+		}
+
+		function getSucess() {
+			return $this->sucess;
+		}
+
+		function getData() {
+			return $this->loadout;
+		}
+
+
 	}
-
-	$t = new SC_ship_loadout($_SETTINGS['STARCITIZEN']['scripts']."\Loadouts\Vehicles\Default_Loadout_AEGS_Avenger.xml");
-
-	$t->mu_print();
-	//
 ?>

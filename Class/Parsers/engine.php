@@ -1,6 +1,4 @@
 <?php
-  require_once('item.php');
-
   Class SC_Engine extends SC_Item {
 
     protected $path;

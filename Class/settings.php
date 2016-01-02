@@ -2,7 +2,8 @@
 
 $_SETTINGS = array(
   "SOFT" => array(
-    "version" => "0.1"
+    "version"   => "0.1",
+    "jsonPath"  => "C:\Users\david\Documents\GitHub\SC-XML-Stats\json\\"
   ),
   "STARCITIZEN" => array(
     "version" => "2.0",
@@ -10,8 +11,8 @@ $_SETTINGS = array(
     "PATHS" => array(
       "engine"        => "/Entities/Items/XML/Spaceships/Thrusters/",
       "thruster"      => "/Entities/Items/XML/Spaceships/Thrusters/",
-      "ship"          => "",
-      "weaponMount"  => "/Entities/Items/XML/Spaceships/Weapon_Mounts/",
+      "shipLoadout"   => "/Loadouts/Vehicles/",
+      "weaponMount"   => "/Entities/Items/XML/Spaceships/Weapon_Mounts/",
       "weaponMissile" => "/Entities/Items/XML/Spaceships/Missile_Racks/",
       "weapon"        => "/Entities/Items/XML/Spaceships/Weapons/",
       "ammo"          => "/Entities/Items/XML/Spaceships/Ammo/"

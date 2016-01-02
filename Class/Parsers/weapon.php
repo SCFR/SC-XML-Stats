@@ -1,6 +1,4 @@
 <?php
-  require_once('item.php');
-  require_once('ammo.php');
 
   Class SC_Weapon extends SC_Item {
 
@@ -87,7 +85,7 @@
 
     function ammoPath() {
       global $_SETTINGS;
-      $t = $this->rsearch($_SETTINGS['STARCITIZEN']['PATHS']['ammo'], "~".$this->itemName."~");
+      $t = $this->rsearch($_SETTINGS['STARCITIZEN']['PATHS']['ammo'], "~".$this->itemName."~", "Interface");
         if($t) {
           $this->path = $t['file'];
           return true;
@@ -97,7 +95,7 @@
 
     function mountPath() {
         global $_SETTINGS;
-        $t = $this->rsearch($_SETTINGS['STARCITIZEN']['PATHS']['weaponMount'], "~".$this->itemName."~");
+        $t = $this->rsearch($_SETTINGS['STARCITIZEN']['PATHS']['weaponMount'], "~".$this->itemName."~", "Interface");
           if($t) {
             $this->path = $t['file'];
             $this->mountType = "test";

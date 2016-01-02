@@ -1,0 +1,6 @@
+Options +FollowSymlinks
+RewriteEngine on
+RewriteBase /GIT/SC-XML-Stats/Class/
+
+RewriteRule ^API/$ Presentation/index.php  [L]
+RewriteRule ^API/(.*)$ Presentation/index.php?r=$1  [L]

@@ -1,7 +1,5 @@
 <?php
-  require_once('../parser.class.php');
-
-  Class SC_Item extends SC_Parser {
+  Class SC_Item implements SC_Parser {
 
     protected $itemName;
     protected $constructor;
@@ -9,6 +7,7 @@
     protected $children;
     protected $minSize = 0;
     protected $OK = true;
+    private $error;
 
     function __construct($item) {
       $item = (array) $item;
@@ -73,6 +72,23 @@
       }
       return $fileInfo;
     }
+
+    function getData() {
+      return $this->params;
+    }
+
+    function saveJson($folder) {
+			global $_SETTINGS;
+			file_put_contents($_SETTINGS["SOFT"]["jsonPath"].$folder.$this->itemName.".json", json_encode(getData()));
+		}
+
+    function getError() {
+    	return $this->error;
+    }
+
+    function getSucess() {
+    	return $this->sucess;
+  	}
 
   }
 
