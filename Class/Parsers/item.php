@@ -56,7 +56,7 @@
       return $this->params;
     }
 
-    function rsearch($folder, $pattern) {
+    function rsearch($folder, $pattern, $not=false) {
       global $_SETTINGS;
       $fileInfo = false;
       $folder = $_SETTINGS['STARCITIZEN']['scripts'].$folder;
@@ -65,6 +65,7 @@
       $files = new RegexIterator($ite, $pattern, RegexIterator::GET_MATCH);
       $fileList = array();
       foreach($files as $file) {
+        if($not && (strpos($file[0], $not) !== FALSE || strpos($ite->getSubPath(), $not) !== FALSE)) continue;
         $fileInfo = array();
           $fileInfo["fileName"] = $file[0].".xml";
           $fileInfo['sub'] = $ite->getSubPath().'/';

@@ -8,6 +8,7 @@
     private $XML;
     private $type = "weapon";
     private $ammo = false;
+    private $ammoBox = false;
 
     function __construct($item) {
       parent::__construct($item);
@@ -21,6 +22,7 @@
 
         $this->getSubItems();
         $this->getAmmos();
+        $this->getAmmoBoxes();
       }
     }
 
@@ -34,6 +36,17 @@
         }
 
         if($child) $this->children = $child;
+      }
+    }
+    function getAmmoBoxes() {
+      if($this->XML->defaultLoadout && $this->XML->defaultLoadout->Items)  {
+        foreach($this->XML->defaultLoadout->Items->Item as $ammoBox) {
+          $ammoBox = (array) $ammoBox;
+          $sub = new SC_Ammo($ammoBox,true);
+          $boxes[] = $sub->returnHardpoint($ammoBox['@attributes']['portName']);
+        }
+
+        if($boxes) $this->ammoBox = $boxes;
       }
     }
 
@@ -52,7 +65,8 @@
     function returnHardpoint($portName) {
       $ar = parent::returnHardpoint($portName);
 
-      if($this->ammo) $ar['DEFAULT']['AMMO'] = $this->ammo;
+      if($this->ammo) $ar['DEFAULT']['AMMO']    = $this->ammo;
+      if($this->ammoBox) $ar['DEFAULT']['AMMOBOX'] = $this->ammoBox;
 
       return $ar;
     }
@@ -95,7 +109,7 @@
 
     function weaponPath() {
       global $_SETTINGS;
-      $t = $this->rsearch($_SETTINGS['STARCITIZEN']['PATHS']['weapon'], "~".$this->itemName."~");
+      $t = $this->rsearch($_SETTINGS['STARCITIZEN']['PATHS']['weapon'], "~".$this->itemName."~", "Interface");
         if($t) {
           $this->path = $t['file'];
           return true;
@@ -106,7 +120,7 @@
 
     function misPath() {
       global $_SETTINGS;
-      $t = $this->rsearch($_SETTINGS['STARCITIZEN']['PATHS']['weaponMissile'], "~".$this->itemName."~");
+      $t = $this->rsearch($_SETTINGS['STARCITIZEN']['PATHS']['weaponMissile'], "~".$this->itemName."~", "Interface");
       if($t) {
         $this->path = $t['file'];
         return true;

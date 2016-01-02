@@ -87,7 +87,7 @@ require_once("weapon.php");
 		}
 	}
 
-	$t = new SC_ship_loadout($_SETTINGS['STARCITIZEN']['scripts']."\Loadouts\Vehicles\Default_Loadout_ANVL_Hornet_F7C.xml");
+	$t = new SC_ship_loadout($_SETTINGS['STARCITIZEN']['scripts']."\Loadouts\Vehicles\Default_Loadout_AEGS_Avenger.xml");
 
 	$t->mu_print();
 	//
