@@ -1,11 +1,11 @@
 <?php
 require_once("settings.php");
-require_once("parser.class.php");
-require_once('Parsers/item.php');
-require_once('Parsers/weapon.php');
-require_once('Parsers/ammo.php');
-require_once('Parsers/engine.php');
-require_once('Parsers/ship_loadout.php');
+require_once("Parsers/Parser.php");
+require_once('Parsers/Item.php');
+require_once('Parsers/Weapon.php');
+require_once('Parsers/Ammo.php');
+require_once('Parsers/Engine.php');
+require_once('Parsers/Ship_loadout.php');
 
 Class SC_Query {
 
