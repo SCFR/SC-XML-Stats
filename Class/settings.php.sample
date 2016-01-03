@@ -1,6 +1,13 @@
 <?php
 
 $_SETTINGS = array(
+    "DB" => array(
+    "host"     => "",
+    "dbName"   => "",
+    "dbUser"   => "",
+    "dbPass"   => ""
+    "prefix"   => "SCP_"
+  ),
   "SOFT" => array(
     "version"   => "0.1",
     "jsonPath"  => "C:\Users\david\Documents\GitHub\SC-XML-Stats\json\\"
