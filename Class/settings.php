@@ -12,10 +12,11 @@ $_SETTINGS = array(
       "engine"        => "/Entities/Items/XML/Spaceships/Thrusters/",
       "thruster"      => "/Entities/Items/XML/Spaceships/Thrusters/",
       "shipLoadout"   => "/Loadouts/Vehicles/",
-      "weaponMount"   => "/Entities/Items/XML/Spaceships/Weapon_Mounts/",
-      "weaponMissile" => "/Entities/Items/XML/Spaceships/Missile_Racks/",
+      "mount"         => "/Entities/Items/XML/Spaceships/Weapon_Mounts/",
+      "missile"       => "/Entities/Items/XML/Spaceships/Missile_Racks/",
       "weapon"        => "/Entities/Items/XML/Spaceships/Weapons/",
-      "ammo"          => "/Entities/Items/XML/Spaceships/Ammo/"
+      "ammo"          => "/Entities/Items/XML/Spaceships/Ammo/",
+      "turret"        => "/Entities/Items/XML/Spaceships/Turrets/",
     )
   )
 );

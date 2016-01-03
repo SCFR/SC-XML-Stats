@@ -49,8 +49,6 @@
 						$this->loadout['ENGINES'][] = $e->returnHardpoint($item["@attributes"]['portName']);
 					break;
 					case "weapon":
-					case "weaponMount":
-					case "weaponMissile":
 						try {
 						    $s = new SC_Weapon($item);
 							  $put =	$s->returnHardpoint($item["@attributes"]['portName']);
@@ -75,8 +73,7 @@
 				$test = preg_match("~hardpoint_(.*)(_|$)~mU", $item["@attributes"]['portName'],$match);
 				if($test) {
 					if 			($match[1] == "thruster" && strpos($item["@attributes"]['portName'], "engine")	 !== FALSE) return "engine";
-					elseif 	($match[1] == "weapon"	 && strpos($item["@attributes"]['portName'], "missilerack")	 !== FALSE) return "weaponMissile";
-					elseif 	($match[1] == "class") return "weapon";
+					elseif 	($match[1] == "class" || $match[1] == "gun" || $match[1] == "turret" || $match[1] == "missilerack") return "weapon";
 					else return $match[1];
 				}
 				else return "misc";
@@ -95,8 +92,13 @@
 
 		function saveJson($folder) {
 			global $_SETTINGS;
-			file_put_contents($_SETTINGS["SOFT"]["jsonPath"].$folder.$this->itemName.".json", json_encode($this->getData()));
+
+      $path = $_SETTINGS["SOFT"]["jsonPath"].$folder;
+      if(!is_dir($path)) mkdir($path, 0777, true);
+
+			file_put_contents($path.$this->itemName.".json", json_encode($this->getData()));
 		}
+
 
 		function getError() {
 			return $this->error;
@@ -105,6 +107,7 @@
 		function getSucess() {
 			return $this->sucess;
 		}
+
 
 		function getData() {
 			return $this->loadout;

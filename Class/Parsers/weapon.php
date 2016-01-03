@@ -6,42 +6,79 @@
     private $XML;
     private $type = "weapon";
     private $ammo = false;
+    private $tchild;
     private $ammoBox = false;
 
     function __construct($item) {
       parent::__construct($item);
-
-      $this->getPath();
+      $this->setPath();
 
       if($this->OK) {
-        $this->XML = simplexml_load_file($this->path);
+        $this->XML = $this->XML_OPEN($this->path);
         $this->get_stats($this->XML->params->param);
         $this->getPortMinMaxSize();
 
         $this->getSubItems();
         $this->getAmmos();
         $this->getAmmoBoxes();
+
+        $this->saveJson("Weapons/".$this->type."/");
       }
     }
 
 
     function getSubItems() {
+
+      // SubItems declared by parent
       if(isset($this->raw['Items'])) {
         foreach($this->raw['Items'] as $subitem) {
-          $subitem = (array) $subitem;
-          $sub = new SC_Weapon($subitem);
-          $child[] = $sub->returnHardpoint($subitem['@attributes']['portName']);
+          $this->createSub((array) $subitem);
         }
 
-        if($child) $this->children = $child;
+      }
+
+      // SubItems declared by self
+      $this->rFindSelfSub($this->XML->defaultLoadout);
+
+      if($this->tchild) $this->children = $this->tchild;
+    }
+
+    function rFindSelfSub($xml) {
+      if($xml && $xml->Items) {
+        foreach($xml->Items->Item as $key=>$item) {
+          $notAWeap = false;
+          try {
+            $this->createSub((array) $item);
+            $this->rFindSelfSub($item);
+          }
+          catch(Exception $e) {
+            $notAWeap = true;
+          }
+
+          if(!$notAWeap) unset($xml->Items->Item->key);
+        }
       }
     }
+
+    function createSub($subitem) {
+      $sub = new SC_Weapon($subitem);
+      $this->tchild[] = $sub->returnHardpoint($subitem['@attributes']['portName']);
+    }
+
     function getAmmoBoxes() {
+      $boxes = false;
       if($this->XML->defaultLoadout && $this->XML->defaultLoadout->Items)  {
         foreach($this->XML->defaultLoadout->Items->Item as $ammoBox) {
           $ammoBox = (array) $ammoBox;
-          $sub = new SC_Ammo($ammoBox,true);
-          $boxes[] = $sub->returnHardpoint($ammoBox['@attributes']['portName']);
+          $ex = false;
+          try {
+            $sub = new SC_Ammo($ammoBox,true);
+          }
+          catch(Exception $e) {
+            $ex = true;
+          }
+          // If no exception AND the ammo managed to be compiled -TO.DO Spotty ammo exception throwing
+          if(!$ex && $sub->isDone()) $boxes[] = $sub->returnHardpoint($ammoBox['@attributes']['portName']);
         }
 
         if($boxes) $this->ammoBox = $boxes;
@@ -69,61 +106,27 @@
       return $ar;
     }
 
-    function getPath() {
-      if(!$this->mountPath() && !$this->misPath() && !$this->weaponPath() && !$this->ammoPath()) {
-        $this->OK = false;
-        throw new Exception("NoMatchingWeapon");
-      }
+    function setPath() {
+      $paths = ["weapon", "turret", "mount", "missile", "ammo"];
+        foreach($paths as $path) {
+          if ($this->switchPath($path)) break;
+        }
+
+        if($this->path) return true;
+        else {
+          $this->OK = false;
+          throw new Exception("NoMatchingWeapon : ".$this->itemName);
+        }
     }
 
-
-
-    function returnExist() {
-      if(!file_exists($this->path)) return false;
-      else return true;
-    }
-
-    function ammoPath() {
-      global $_SETTINGS;
-      $t = $this->rsearch($_SETTINGS['STARCITIZEN']['PATHS']['ammo'], "~".$this->itemName."~", "Interface");
+    function switchPath($path) {
+      $t = $this->findXML($path, $this->itemName, "Interface");
         if($t) {
           $this->path = $t['file'];
+          $this->type = $path;
           return true;
         }
         else return false;
-    }
-
-    function mountPath() {
-        global $_SETTINGS;
-        $t = $this->rsearch($_SETTINGS['STARCITIZEN']['PATHS']['weaponMount'], "~".$this->itemName."~", "Interface");
-          if($t) {
-            $this->path = $t['file'];
-            $this->mountType = "test";
-            $this->constructor = "test";
-            return true;
-          }
-          else return false;
-    }
-
-    function weaponPath() {
-      global $_SETTINGS;
-      $t = $this->rsearch($_SETTINGS['STARCITIZEN']['PATHS']['weapon'], "~".$this->itemName."~", "Interface");
-        if($t) {
-          $this->path = $t['file'];
-          return true;
-        }
-        else return false;
-    }
-
-
-    function misPath() {
-      global $_SETTINGS;
-      $t = $this->rsearch($_SETTINGS['STARCITIZEN']['PATHS']['weaponMissile'], "~".$this->itemName."~", "Interface");
-      if($t) {
-        $this->path = $t['file'];
-        return true;
-      }
-      else return false;
     }
 
     function getPortMinMaxSize() {

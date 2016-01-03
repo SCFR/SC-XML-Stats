@@ -2,22 +2,27 @@
 
   Class SC_Ammo extends SC_Item {
     private $ammoBox = false;
+    private $done = false;
 
     function __construct($item,$ammoBox=false) {
       $item = (array) $item;
       $this->ammoBox = $ammoBox;
       if($this->ammoBox) $this->itemName = $item['@attributes']['itemName'];
       else $this->itemName = $item['@attributes']['name'];
-
       $this->set_constructor();
 
       if($this->getPath()) {
-        $this->XML = simplexml_load_file($this->path);
-        $this->setInfos();
+        if($this->XML_OPEN($this->path)) {
 
-        if($this->ammoBox) $this->getAmmoOfBox();
+          $this->XML = $this->XML_OPEN($this->path);
+          $this->setInfos();
+
+          if($this->ammoBox) $this->getAmmoOfBox();
+
+          $this->done = true;
+        }
       }
-      else throw new Exception("NoMatchingAmmo");
+      else throw new Exception("NoMatchingAmmo : ".$this->itemName);
     }
 
     function getPath() {
@@ -61,9 +66,11 @@
         }
       }
 
-      $this->params += $ar;
+      if($this->params) $this->params += (array) $ar;
     }
-
+    function isDone() {
+      return $this->done;
+    }
     function getInfos() {
       return $this->params;
     }

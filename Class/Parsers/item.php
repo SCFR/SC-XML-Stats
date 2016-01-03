@@ -6,6 +6,7 @@
     protected $params;
     protected $children;
     protected $minSize = 0;
+    protected $path = false;
     protected $OK = true;
     private $error;
 
@@ -55,6 +56,11 @@
       return $this->params;
     }
 
+    function returnExist() {
+      if(!$this->path || !file_exists($this->path)) return false;
+      else return true;
+    }
+
     function rsearch($folder, $pattern, $not=false) {
       global $_SETTINGS;
       $fileInfo = false;
@@ -73,13 +79,29 @@
       return $fileInfo;
     }
 
+    function findXML($folderName, $itemName, $not=false) {
+    global $_SETTINGS;
+      $t = $this->rsearch($_SETTINGS['STARCITIZEN']['PATHS'][$folderName], "~".$itemName."~", $not);
+      if($t) return $t;
+      else return false;
+    }
+
     function getData() {
       return $this->params;
     }
 
+    function XML_OPEN($file) {
+      if(file_exists($file)) return simplexml_load_file($file);
+      else return false;
+    }
+
     function saveJson($folder) {
 			global $_SETTINGS;
-			file_put_contents($_SETTINGS["SOFT"]["jsonPath"].$folder.$this->itemName.".json", json_encode(getData()));
+
+      $path = $_SETTINGS["SOFT"]["jsonPath"].$folder;
+      if(!is_dir($path)) mkdir($path, 0777, true);
+
+			file_put_contents($path.$this->itemName.".json", json_encode($this->getData()));
 		}
 
     function getError() {
