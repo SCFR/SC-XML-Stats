@@ -49,13 +49,14 @@
 						$this->loadout['ENGINES'][] = $e->returnHardpoint($item["@attributes"]['portName']);
 					break;
 					case "weapon":
+					$put = false;
 						try {
 						    $s = new SC_Weapon($item);
-							  $put =	$s->returnHardpoint($item["@attributes"]['portName']);
+								$put =	$s->returnHardpoint($item["@attributes"]['portName']);
 						} catch (Exception $e) {
-						    $put = "ERROR : ".$e->getMessage();
-								throw $e;
+								$this->error[] = "WEAPON : ".$e->getMessage();
 						}
+
 						$this->loadout['WEAPONS'][] = $put;
 
 					break;
@@ -70,10 +71,10 @@
 
 		function getItemType($item) {
 			if($item["@attributes"] && $item["@attributes"]['portName']) {
-				$test = preg_match("~hardpoint_(.*)(_|$)~mU", $item["@attributes"]['portName'],$match);
+				$test = preg_match("~.*_(.*)(_|$)~mU", $item["@attributes"]['portName'],$match);
 				if($test) {
 					if 			($match[1] == "thruster" && strpos($item["@attributes"]['portName'], "engine")	 !== FALSE) return "engine";
-					elseif 	($match[1] == "class" || $match[1] == "gun" || $match[1] == "turret" || $match[1] == "missilerack") return "weapon";
+					elseif 	(preg_match("~[cC]lass|[gG]un|[tT]urret|[mM]issilerack~mU", $match[1])) return "weapon";
 					else return $match[1];
 				}
 				else return "misc";
@@ -92,7 +93,6 @@
 
 		function saveJson($folder) {
 			global $_SETTINGS;
-
       $path = $_SETTINGS["SOFT"]["jsonPath"].$folder;
       if(!is_dir($path)) mkdir($path, 0777, true);
 

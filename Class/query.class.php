@@ -49,7 +49,7 @@ Class SC_Query {
         case "Ship":
           if($this->args[2] == "*") {
             foreach (new DirectoryIterator($_SETTINGS['STARCITIZEN']['scripts'].$_SETTINGS['STARCITIZEN']['PATHS']['shipLoadout']) as $file) {
-              if($file->isDot()) continue;
+              if($file->isDot() || $file->isDir()) continue;
               $s = new SC_Loadout($file->getPathname());
               $s->saveJson("ShipsLoadouts/");
 

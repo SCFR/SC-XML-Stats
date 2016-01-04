@@ -21,6 +21,7 @@
         $this->getSubItems();
         $this->getAmmos();
         $this->getAmmoBoxes();
+        $this->getFireMod();
 
         $this->saveJson("Weapons/".$this->type."/");
       }
@@ -85,12 +86,22 @@
       }
     }
 
+    function getData() {
+      if($this->params && $this->OK) {
+        $ammo = $ammoBox = array();
+        if($this->ammo)    $ammo["AMMO"]       = $this->ammo;
+        if($this->ammoBox) $ammoBox["AMMOBOX"] = $this->ammoBox;
+
+        return $this->params + $ammo + $ammoBox;
+      }
+      else return false;
+    }
+
     function getAmmos() {
       if(isset($this->XML->ammos)) {
         foreach((array) $this->XML->ammos as $ammo) {
           $ammo = (array) $ammo;
           $sub = new SC_Ammo($ammo);
-
           $ammos[] = $sub->getInfos();
         }
         if($ammo) $this->ammo = $ammos;
@@ -100,7 +111,7 @@
     function returnHardpoint($portName) {
       $ar = parent::returnHardpoint($portName);
 
-      if($this->ammo) $ar['DEFAULT']['AMMO']    = $this->ammo;
+      if($this->ammo)    $ar['DEFAULT']['AMMO']    = $this->ammo;
       if($this->ammoBox) $ar['DEFAULT']['AMMOBOX'] = $this->ammoBox;
 
       return $ar;
@@ -137,7 +148,22 @@
       }
     }
 
+    function getFireMod() {
+      $fMods = false;
+        if($this->XML->firemodes) {
+          foreach($this->XML->firemodes->firemode as $firemod) {
+            $firemod = (array) $firemod;
 
+            $fMods[$firemod["@attributes"]["name"]]["type"] = $firemod["@attributes"]["type"];
+            foreach($firemod["fire"]->param as $param) {
+              $param = (array) $param;
+              $fMods[$firemod["@attributes"]["name"]][$param["@attributes"]["name"]] = $param["@attributes"]["value"];
+            }
+          }
+
+          if($fMods) $this->params["FIREMODS"] = $fMods;
+        }
+    }
 
   }
 ?>
