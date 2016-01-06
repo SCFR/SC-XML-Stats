@@ -13,7 +13,7 @@
       parent::__construct($item);
       $this->setPath();
 
-      if($this->OK) {
+      if($this->OK && $this->itemName) {
         $this->XML = $this->XML_OPEN($this->path);
         $this->get_stats($this->XML->params->param);
         $this->getPortMinMaxSize();
@@ -24,6 +24,9 @@
         $this->getFireMod();
 
         $this->saveJson("Weapons/".$this->type."/");
+      }
+      elseif($this->OK) {
+        $this->getSubItems();
       }
     }
 
@@ -39,7 +42,7 @@
       }
 
       // SubItems declared by self
-      $this->rFindSelfSub($this->XML->defaultLoadout);
+      if($this->XML) $this->rFindSelfSub($this->XML->defaultLoadout);
 
       if($this->tchild) $this->children = $this->tchild;
     }

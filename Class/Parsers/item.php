@@ -15,9 +15,8 @@
       $this->raw = $item;
       $this->itemName = $item["@attributes"]["itemName"];
 
-      if(!$this->itemName) throw new Exception("NoObjectName");
-
-      $this->set_constructor();
+    //  if(!$this->itemName) throw new Exception("NoObjectName");
+     $this->set_constructor();
     }
 
     function set_constructor() {
