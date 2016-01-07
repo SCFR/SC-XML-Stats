@@ -16,7 +16,6 @@
 				$this->file = $file;
 				$this->setFileName();
 				$this->parseLoadout(simplexml_load_file($file));
-				$this->parseShip();
 			}
 			catch(Exception $e) {
 				$this->error = $e->getMessage();
@@ -41,31 +40,39 @@
 			function recurHp($xml,&$raw) {
 				if($xml->Parts) {
 					foreach($xml->Parts->Part as $part) {
-						$p = (array) $part;
-						$raw[$p["@attributes"]["name"]] = array(
-							"@attributes" => $p["@attributes"],
-							"ItemPort"		=> isset($p["ItemPort"]) ? (array) $p["ItemPort"] : null,
-						);
+						$raw[(string) $part["name"]] = $part;
 						recurHp($part,$raw);
 					}
 				}
 			}
+
 			recurHp($this->XMLShip, $raw);
+			foreach($this->XMLShip->attributes() as $name=>$value) {
+				$mainVehicle[$name] = (string) $value;
+			}
+			$this->loadout += $mainVehicle;
 
 				// Get mains stats
 			$mainPart = reset($raw);
 
+			function issetHard($value) {
+				return isset($value) === true ? $value : "";
+			}
 				// Get every hardpoints
 			foreach($this->loadout['HARDPOINTS'] as $t=>$type) {
 				foreach($type as $i=>$hardpoint) {
 					if(isset($raw[$hardpoint["hardpoint"]])) {
 						$h = $raw[$hardpoint["hardpoint"]];
+
+
 						$this->loadout['HARDPOINTS'][$t][$i] += array(
-							"minSize"				=> $h["ItemPort"]["@attributes"]["minsize"],
-							"maxSize"				=> $h["ItemPort"]["@attributes"]["maxsize"],
-							"displayName"		=> $h["ItemPort"]["@attributes"]["display_name"],
-							"flags"					=> $h["ItemPort"]["@attributes"]["flags"],
-							"requiredTags"	=> isset($h["ItemPort"]["@attributes"]["requiredTags"]) ? $h["ItemPort"]["@attributes"]["requiredTags"] : "",
+							"minSize"				=> issetHard((int) $h->ItemPort["minsize"]["minsize"]),
+							"maxSize"				=> issetHard((int) $h->ItemPort["maxsize"]),
+							"displayName"		=> issetHard((string) $h->ItemPort["display_name"]),
+							"flags"					=> issetHard((string) $h->ItemPort["flags"]),
+							"requiredTags"	=> issetHard((string) $h->ItemPort["requiredTags"]),
+							"type"					=> explode(',', (string) $h->ItemPort->Types->Type["type"]),
+							"subtypes"			=> explode(',', (string) $h->ItemPort->Types->Type["subtypes"]),
 						);
 					}
 					else throw new Exception("NoMatchingHardPoint");
@@ -104,7 +111,9 @@
 
 		function parseLoadout($xml) {
 			$this->XML = $this->get_main_offs($xml);
+
 			$this->parseEquipment();
+			$this->parseShip();
 		}
 
 		function setFileName() {
