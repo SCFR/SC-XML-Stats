@@ -34,7 +34,6 @@
 
     function returnHardpoint($portName) {
       $ar = array(
-          "hardpoint" => $portName,
           "hasChild"  => "false",
           "DEFAULT" 	=> $this->get_infos(),
       );
