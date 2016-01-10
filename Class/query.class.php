@@ -6,6 +6,7 @@ require_once('Parsers/Weapon.php');
 require_once('Parsers/Ammo.php');
 require_once('Parsers/Engine.php');
 require_once('Parsers/Ship_loadout.php');
+require_once('Parsers/Shield.php');
 
 Class SC_Query {
 

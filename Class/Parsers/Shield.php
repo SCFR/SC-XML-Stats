@@ -1,0 +1,21 @@
+<?php
+/**
+ * Parse a given Shield
+ * @package SC-XML-Stats
+ * @subpackage Classes/Items
+ */
+class SC_Shield extends SC_Item {
+
+  function __construct($item) {
+    parent::__construct($item);
+    $this->setPath("shield","Interface");
+
+    if($this->OK && $this->path) {
+      $this->XML = simplexml_load_file($this->path);
+      $this->setItemMainStats();
+    }
+  }
+
+
+}
+?>

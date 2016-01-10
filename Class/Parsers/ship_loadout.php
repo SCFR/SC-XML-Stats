@@ -5,7 +5,6 @@
  * @package SC-XML-Stats
  * @subpackage classes
  */
-
 	Class SC_Loadout implements SC_Parser {
 
 		private $file;
@@ -22,7 +21,8 @@
 			try {
 				$this->file = $file;
 				$this->setFileName();
-				$this->parseLoadout(simplexml_load_file($file));
+				$this->setXml($file);
+				$this->parseLoadout();
 			}
 			catch(Exception $e) {
 				$this->error = $e->getMessage();
@@ -30,11 +30,16 @@
 
 		}
 
+		private function setXml($file) {
+			if(file_exists($file)) $this->XML = simplexml_load_file($file);
+			else throw new Exception("LadoutNotExist");
+		}
+
 		/**
      * Does the parsing of the ShipImplementation
      * @throws Exception If it can't get the ShipImplementation
      */
-		function private parseShip() {
+		private function parseShip() {
 			$path = $this->getShipPath();
 				if($path) {
 					$this->XMLShip = simplexml_load_file($path);
@@ -131,8 +136,9 @@
 				// Get HardPoints that are worthwhile;
 			foreach($raw as $hpname => $hp) {
 				if($this->hpisOfType(array("Turret", "WeaponGun", "WeaponMissile"),$hp)) $this->loadout["HARDPOINTS"]["WEAPONS"][] = $this->hpReturnInfo($hp);
-				elseif($this->hpisOfType(array("MainThruster"),$hp)) 			$this->loadout["HARDPOINTS"]["ENGINES"][] 	= $this->hpReturnInfo($hp);
-				elseif($this->hpisOfType(array("ManneuverThruster"),$hp)) $this->loadout["HARDPOINTS"]["THRUSTERS"][] = $this->hpReturnInfo($hp);
+				elseif($this->hpisOfType("MainThruster",$hp)) 			$this->loadout["HARDPOINTS"]["ENGINES"][] 	= $this->hpReturnInfo($hp);
+				elseif($this->hpisOfType("ManneuverThruster",$hp)) $this->loadout["HARDPOINTS"]["THRUSTERS"][] 	= $this->hpReturnInfo($hp);
+				elseif($this->hpisOfType("Shield",$hp))						 $this->loadout["HARDPOINTS"]["SHIELDS"][] 		= $this->hpReturnInfo($hp);
 			}
 
 		}
@@ -174,10 +180,8 @@
      * Main function to parse ShipImplementation
 		 * Starts of by calling { @link recurHp()} to build the array of items,
 		 * get main stats of the ship, then get worthwhile hardpoints into { @link loadout}
-     * @param SimpleXMLElement $h XML of Hardpoint
-	   * @return array
      */
-		function parseLoadout($xml) {
+		function parseLoadout() {
 			$this->parseShip();
 			$this->parseEquipment();
 		}
@@ -189,7 +193,6 @@
 		}
 
 		function parseEquipment() {
-
 			foreach($this->XML->Items->Item as $item) {
 				$equipements[(string) $item["portName"]] = $item;
 			}
@@ -201,10 +204,13 @@
 						try	{
 							switch($hpType) {
 								case "ENGINES":
-									$s = new SC_Engine((array) $equipements[$hp["name"]]);
+									$s = new SC_Engine($equipements[$hp["name"]]);
 								break;
 								case "WEAPONS":
-									$s = new SC_Weapon((array) $equipements[$hp["name"]]);
+									$s = new SC_Weapon($equipements[$hp["name"]]);
+								break;
+								case "SHIELDS":
+									$s = new SC_Shield($equipements[$hp["name"]]);
 								break;
 							}
 							if(isset($s))	$put =	$s->returnHardpoint((string) $equipements[$hp["name"]]['portName']);

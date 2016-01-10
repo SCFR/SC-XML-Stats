@@ -3,7 +3,6 @@
   Class SC_Weapon extends SC_Item {
 
     protected $path;
-    private $XML;
     private $type = "weapon";
     private $ammo = false;
     private $tchild;
@@ -15,7 +14,7 @@
 
       if($this->OK && $this->itemName) {
         $this->XML = $this->XML_OPEN($this->path);
-        $this->get_stats($this->XML->params->param);
+        $this->setItemMainStats();
         $this->getPortMinMaxSize();
 
         $this->getSubItems();
@@ -120,10 +119,9 @@
       return $ar;
     }
 
-    function setPath() {
-      $paths = ["weapon", "turret", "mount", "missile", "ammo"];
-        foreach($paths as $path) {
-          if ($this->switchPath($path)) break;
+    function setPath($types=array("weapon", "turret", "mount", "missile", "ammo"),$not="Interface") {
+        foreach((array) $types as $type) {
+          if ($this->switchPath($type,$not)) break;
         }
 
         if($this->path) return true;
@@ -133,8 +131,8 @@
         }
     }
 
-    function switchPath($path) {
-      $t = $this->findXML($path, $this->itemName, "Interface");
+    function switchPath($path,$not) {
+      $t = $this->findXML($path, $this->itemName, $not);
         if($t) {
           $this->path = $t['file'];
           $this->type = $path;

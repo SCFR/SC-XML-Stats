@@ -2,31 +2,19 @@
   Class SC_Engine extends SC_Item {
 
     protected $path;
-    private $XML;
 
     function __construct($item) {
       parent::__construct($item);
 
-      $this->setPath();
+      $this->setPath("engine","Interface");
 
       if($this->OK && $this->returnExist($this->XML)) {
         $this->XML = simplexml_load_file($this->path);
-        $this->get_stats($this->XML->params->param);
+        $this->setItemMainStats();
         $this->parseEngine();
 
         $this->saveJson("Engines/");
       }
-    }
-
-    function setPath() {
-      $t = $this->findXML("engine", $this->itemName, "Interface");
-        if($t) {
-          $this->path = $t['file'];
-        }
-        else {
-          $this->OK = false;
-          throw new Exception("NoMatchingEngine : ".$this->itemName);
-        }
     }
 
     function parseEngine() {
@@ -47,7 +35,7 @@
 
       // Parsing thrust
     $thruster = (array) $this->XML->thrusters->thruster->{0};
-    $this->params["maxThrust"] = $thruster["@attributes"]["maxThrust"]; 
+    $this->params["maxThrust"] = $thruster["@attributes"]["maxThrust"];
     }
 
 

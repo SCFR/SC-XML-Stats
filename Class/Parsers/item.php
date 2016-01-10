@@ -5,15 +5,15 @@
     protected $constructor;
     protected $params;
     protected $children;
+    protected $XML;
     protected $minSize = 0;
     protected $path = false;
     protected $OK = true;
     private $error;
 
     function __construct($item) {
-      $item = (array) $item;
       $this->raw = $item;
-      $this->itemName = $item["@attributes"]["itemName"];
+      $this->itemName = (string) $item["itemName"];
 
     //  if(!$this->itemName) throw new Exception("NoObjectName");
      $this->set_constructor();
@@ -24,11 +24,9 @@
       if($t) $this->constructor = $match[1];
     }
 
-    function get_stats($params) {
-      foreach($params as $param) {
-        $param = ((array) $param);
-        $param = $param['@attributes'];
-        $this->params[$param['name']] = $param['value'];
+    function setItemMainStats() {
+      foreach($this->XML->params->param as $value) {
+        $this->params[(string) $value["name"]] = (string) $value["value"];
       }
     }
 
@@ -82,6 +80,17 @@
       $t = $this->rsearch($_SETTINGS['STARCITIZEN']['PATHS'][$folderName], "~".$itemName."~", $not);
       if($t) return $t;
       else return false;
+    }
+
+    function setPath($type, $not=false) {
+      $t = $this->findXML($type, $this->itemName, $not);
+        if($t) {
+          $this->path = $t['file'];
+        }
+        else {
+          $this->OK = false;
+          throw new Exception("NoMatching.".ucfirst($type)." : ".$this->itemName);
+        }
     }
 
     function getData() {
