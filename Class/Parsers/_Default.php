@@ -1,23 +1,23 @@
 <?php
-  Class SC_Thruster extends SC_Item {
+  Class SC_xxx extends SC_Item {
     protected $path;
 
     function __construct($item) {
       parent::__construct($item);
 
-      $this->setPath("thruster","Interface");
+      $this->setPath("xxx","Interface");
 
       if($this->OK && $this->returnExist($this->path)) {
         $this->XML = simplexml_load_file($this->path);
         $this->setItemMainStats();
-        $this->parseThruster();
+        $this->parsexxx();
 
-        $this->saveJson("Thrusters/");
+        $this->saveJson("xxx/");
       }
     }
 
-    function parseThruster() {
-      //To do
+    function parsexxx() {
+      // To do
     }
 
   }

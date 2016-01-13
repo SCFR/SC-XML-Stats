@@ -139,6 +139,7 @@
 				elseif($this->hpisOfType("MainThruster",$hp)) 			$this->loadout["HARDPOINTS"]["ENGINES"][] 	= $this->hpReturnInfo($hp);
 				elseif($this->hpisOfType("ManneuverThruster",$hp)) $this->loadout["HARDPOINTS"]["THRUSTERS"][] 	= $this->hpReturnInfo($hp);
 				elseif($this->hpisOfType("Shield",$hp))						 $this->loadout["HARDPOINTS"]["SHIELDS"][] 		= $this->hpReturnInfo($hp);
+				elseif($this->hpisOfType("Radar",$hp))						 $this->loadout["HARDPOINTS"]["RADARS"][] 			= $this->hpReturnInfo($hp);
 			}
 
 		}
@@ -211,6 +212,12 @@
 								break;
 								case "SHIELDS":
 									$s = new SC_Shield($equipements[$hp["name"]]);
+								break;
+								case "THRUSTERS":
+									$s = new SC_Thruster($equipements[$hp["name"]]);
+								break;
+								case "RADARS":
+									$s = new SC_Radar($equipements[$hp["name"]]);
 								break;
 							}
 							if(isset($s))	$put =	$s->returnHardpoint((string) $equipements[$hp["name"]]['portName']);

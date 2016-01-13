@@ -5,8 +5,10 @@ require_once('Parsers/Item.php');
 require_once('Parsers/Weapon.php');
 require_once('Parsers/Ammo.php');
 require_once('Parsers/Engine.php');
-require_once('Parsers/Ship_loadout.php');
 require_once('Parsers/Shield.php');
+require_once('Parsers/Radar.php');
+require_once('Parsers/Thruster.php');
+require_once('Parsers/Ship_loadout.php');
 
 Class SC_Query {
 
