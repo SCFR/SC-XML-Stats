@@ -7,14 +7,23 @@
 
   Class SC_Item implements SC_Parser {
 
+    /** @var String the name of the current Item */
     protected $itemName;
+    /** @var String The name of the constructor (usually 4 letters AEGS|ANVL...) */
     protected $constructor;
+    /** @var Array The main array containing the parameters of the current Item */
     protected $params;
+    /** @var Array An Array of params from the children of current Item */
     protected $children;
+    /** @var SimpleXMLElement The main XML for this Item */
     protected $XML;
+    /** @var Int the minSize of the harpoint for this Item */
     protected $minSize = 0;
+    /** @var false|String the Path to the XML file */
     protected $path = false;
+    /** @var Boolean Whever the parsing is okay or not */
     protected $OK = true;
+    /** @var false|array An array containing parsing errors, or false. */
     private $error;
 
     /**
@@ -30,7 +39,7 @@
     /**
      * Sets the constructor name from the file name.
      */
-    function set_constructor() {
+    protected function set_constructor() {
       $t = preg_match("~^(.*)_~U", $this->itemName, $match);
       if($t) $this->constructor = $match[1];
     }
@@ -39,7 +48,7 @@
      * Main method to get the bases stats of any item.
      * Parses xml->params into (@link $this->params)
      */
-    function setItemMainStats() {
+    protected function setItemMainStats() {
       if($this->XML && $this->XML->params) {
         foreach($this->XML->params->param as $value) {
           $this->params[(string) $value["name"]] = (string) $value["value"];
@@ -52,7 +61,7 @@
      * @param string $portName the name of the hardpoint (not item)
      * @return an array contening the default item and its children if any.
      */
-    function returnHardpoint($portName) {
+    public function returnHardpoint($portName) {
       $ar = array(
           "hasChild"  => "false",
           "DEFAULT" 	=> $this->get_infos(),
@@ -66,7 +75,7 @@
      * Returns the size of the item.
      * @return int the size of the item.
      */
-    function get_size() {
+    public function get_size() {
       return $this->params['itemSize'];
     }
 
@@ -75,7 +84,7 @@
      * Mainly (@link $this->params) with a few tweaks.
      * @return array the informations.
      */
-    function get_infos() {
+    public function get_infos() {
       if($this->minSize > 0 && $this->maxSize > 0) {
         $this->params['minSize'] = $this->minSize;
         $this->params['maxSize'] = $this->maxSize;
@@ -92,7 +101,7 @@
      * @param mixed Boolean|string $not (default false) whever to ignore certain files
      * @return mixed false|array the infos of the file(s) if found or false.
      */
-    function rsearch($folder, $pattern, $not=false) {
+    private function rsearch($folder, $pattern, $not=false) {
       global $_SETTINGS;
       $fileInfo = false;
       $folder = $_SETTINGS['STARCITIZEN']['scripts'].$folder;
@@ -118,7 +127,7 @@
      * @param mixed Boolean|string $not (default false) whever to ignore certain files
      * @return mixed false|array the infos of the file(s) if found or false.
      */
-    function findXML($folderName, $itemName, $not=false) {
+    protected function findXML($folderName, $itemName, $not=false) {
     global $_SETTINGS;
       $t = $this->rsearch($_SETTINGS['STARCITIZEN']['PATHS'][$folderName], "~".$itemName."~", $not);
       if($t) return $t;
@@ -134,7 +143,7 @@
      * @param mixed Boolean|string $not (default false) whever to ignore certain files
      * @throws Exception NoMatching$type if no file is found.
      */
-    function setPath($type, $not=false) {
+    protected function setPath($type, $not=false) {
       $t = $this->findXML($type, $this->itemName, $not);
         if($t) {
           $this->path = $t['file'];
@@ -144,12 +153,30 @@
           throw new Exception("NoMatching.".ucfirst($type)." : ".$this->itemName);
         }
     }
+    /**
+     * Check Wheter the current path exists or not
+     * @return boolean true if exists, false otherwise.
+     */
+    protected function returnExist() {
+      if(!$this->path || !file_exists($this->path)) return false;
+      else return true;
+    }
+
+    /**
+     * Check Wheter a file exist and opens it.
+		 * @param string $file the path of the file
+     * @return boolean|SimpleXMLElement false or the parsed XML file.
+     */
+    protected function XML_OPEN($file) {
+      if(file_exists($file)) return simplexml_load_file($file);
+      else return false;
+    }
 
     /**
      * Returns the parsed data
 		 * Requirement of SC_Parser
      */
-    function getData() {
+    public function getData() {
       return $this->params;
     }
 
@@ -158,7 +185,7 @@
 		 * Requirement of SC_Parser
      * @param string $folder the folder name.
      */
-    function saveJson($folder) {
+    public function saveJson($folder) {
 			global $_SETTINGS;
 
       $path = $_SETTINGS["SOFT"]["jsonPath"].$folder;
@@ -170,9 +197,9 @@
     /**
      * Returns the errors
 		 * Requirement of SC_Parser
-     * @return mixed boolean|array false or the array of errors. 
+     * @return mixed boolean|array false or the array of errors.
      */
-    function getError() {
+    public function getError() {
     	return $this->error;
     }
 
@@ -181,7 +208,7 @@
      * Requirement of SC_Parser
      * @return boolean sucess or not in parsing.
      */
-    function getSucess() {
+    public function getSucess() {
     	return $this->sucess;
   	}
 

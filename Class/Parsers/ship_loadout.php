@@ -24,7 +24,7 @@
 		private $XMLShip;
 		/**
 		 * An array containing the errors
-		 * @var array
+		 * @var SimpleXMLElement
 		 */
 		private $error;
 		/**
@@ -38,6 +38,10 @@
 		*/
 		private $loadout = array("HARDPOINTS");
 
+		/**
+		 * Item constructor
+		 * @param string $file The path of the ShipLoadout to open.
+		*/
 		function __construct($file) {
 			try {
 				$this->file = $file;
@@ -53,6 +57,7 @@
 
 		/**
      * Get the XML of a Shiploadout
+		 * @param string the file path and name.
      * @throws Exception If it can't get the Shiploadout
      */
 		private function setXml($file) {
@@ -281,6 +286,7 @@
 		/**
      * Saves the whole parsed ship (@link getData()) to a json file,
 		 * Requirement of SC_Parser
+		 * @param string $folder the name of the folder in which to save
      */
 		function saveJson($folder) {
 			global $_SETTINGS;

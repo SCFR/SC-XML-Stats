@@ -1,41 +1,38 @@
 <?php
-
+/**
+ * Handles ammunition and Ammobox
+ * @package SC-XML-Stats
+ * @subpackage Items
+ */
   Class SC_Ammo extends SC_Item {
+    /** @var Boolean is the current object an Ammobox Or not */
     private $ammoBox = false;
+    /** @var Boolean is the parsing done. */
     private $done = false;
 
+    /**
+     * Default Constructor for an SC_Ammo
+     * @param SimpleXMLElement $item the Item.
+     * @param Boolean $ammoBox is this an ammobox or not, default false.
+     */
     function __construct($item,$ammoBox=false) {
-      $item = (array) $item;
+      parent::__construct($item);
+      $this->setPath("ammo","Interface");
       $this->ammoBox = $ammoBox;
-      if($this->ammoBox) $this->itemName = $item['@attributes']['itemName'];
-      else $this->itemName = $item['@attributes']['name'];
-      $this->set_constructor();
 
-      if($this->getPath()) {
-        if($this->XML_OPEN($this->path)) {
+      if($this->OK && $this->returnExist($this->path))  {
+        $this->XML = simplexml_load_file($this->path);
+        $this->setMainAmmo();
 
-          $this->XML = $this->XML_OPEN($this->path);
-          $this->setInfos();
-
-          if($this->ammoBox) $this->getAmmoOfBox();
-
-          $this->done = true;
-        }
+        if($this->ammoBox) $this->setAmmoOfBox();
+        $this->done = true;
       }
-      else throw new Exception("NoMatchingAmmo : ".$this->itemName);
     }
 
-    function getPath() {
-      global $_SETTINGS;
-      $t = $this->rsearch($_SETTINGS['STARCITIZEN']['PATHS']['ammo'], "~".$this->itemName."~", "Interface");
-        if($t) {
-          $this->path = $t['file'];
-          return true;
-        }
-        else return false;
-    }
-
-    function getAmmoOfBox() {
+    /**
+     * Parse an AmmoBox informations
+     */
+    function setAmmoOfBox() {
       if($this->XML->ammoBox) {
         foreach($this->XML->ammoBox->param as $param) {
           $param = (array) $param;
@@ -44,13 +41,16 @@
           elseif($param['@attributes']['name'] == "ammo_name") {
             $arr['@attributes']['name'] = $param['@attributes']['value'];
             $ammo = new SC_Ammo($arr);
-            $this->params["AMMO"][] = $ammo->getInfos();
+            $this->params["AMMO"][] = $ammo->getData();
           }
         }
       }
     }
 
-    function setInfos() {
+    /**
+     * Sets the main Ammo Stats
+     */
+    function setMainAmmo() {
       $this->setItemMainStats();
       $ar['name'] = $this->itemName;
 
@@ -68,11 +68,13 @@
 
       if($this->params) $this->params += (array) $ar;
     }
+
+    /**
+     * Returns the done property
+     * @return Boolean Whever or not the parsing is done.
+     */
     function isDone() {
       return $this->done;
-    }
-    function getInfos() {
-      return $this->params;
     }
 
 }

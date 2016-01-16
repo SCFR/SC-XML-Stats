@@ -1,8 +1,17 @@
 <?php
+/**
+ * Handles Engines and exclusively Engines,
+ * see SC_Thruster for Thrusters
+ * @package SC-XML-Stats
+ * @see SC_Thruster
+ * @subpackage Items
+ */
   Class SC_Engine extends SC_Item {
 
-    protected $path;
-
+    /**
+     * Default Constructor for an SC_Engine
+     * @param SimpleXMLElement $item the Item.
+     */
     function __construct($item) {
       parent::__construct($item);
 
@@ -17,7 +26,10 @@
       }
     }
 
-    function parseEngine() {
+    /**
+     * Gets custom property of engines
+     */
+    private function parseEngine() {
 
       // Parsing pipes
       foreach($this->XML->Pipes->Pipe as $pipe) {

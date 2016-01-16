@@ -1,10 +1,32 @@
 <?php
+/**
+ * The interface for being a Parser.
+ * Currently supported by SC_Loadout and SC_Item
+ */
 Interface SC_Parser {
 
+	/**
+	 * Saves (@link getData()) to a json file.
+	 * Requirement of SC_Parser
+	 * @param string $folder the folder name.
+	 */
 	public function saveJson($folder);
-	
+	/**
+	 * Returns the parsed data
+	 * Requirement of SC_Parser
+	 */
 	public function getData();
+	/**
+	 * Returns the errors
+	 * Requirement of SC_Parser
+	 * @return mixed boolean|array false or the array of errors.
+	 */
 	public function getError();
+	/**
+	 * Returns the sucess
+	 * Requirement of SC_Parser
+	 * @return boolean sucess or not in parsing.
+	 */
 	public function getSucess();
 }
 ?>

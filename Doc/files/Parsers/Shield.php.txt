@@ -5,7 +5,10 @@
  * @subpackage Classes/Items
  */
 class SC_Shield extends SC_Item {
-
+  /**
+  * Main constructor for Shield
+  * @param SimpleXMLElement $item the item xml.
+  */
   function __construct($item) {
     parent::__construct($item);
     $this->setPath("shield","Interface");
