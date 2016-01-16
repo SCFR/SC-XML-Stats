@@ -51,7 +51,7 @@
     }
 
     function setInfos() {
-      $this->get_stats($this->XML->params->param);
+      $this->setItemMainStats();
       $ar['name'] = $this->itemName;
 
       if(!$this->ammoBox) {
