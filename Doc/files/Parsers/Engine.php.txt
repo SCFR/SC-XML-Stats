@@ -1,0 +1,45 @@
+<?php
+  Class SC_Engine extends SC_Item {
+
+    protected $path;
+
+    function __construct($item) {
+      parent::__construct($item);
+
+      $this->setPath("engine","Interface");
+
+      if($this->OK && $this->returnExist($this->XML)) {
+        $this->XML = simplexml_load_file($this->path);
+        $this->setItemMainStats();
+        $this->parseEngine();
+
+        $this->saveJson("Engines/");
+      }
+    }
+
+    function parseEngine() {
+
+      // Parsing pipes
+      foreach($this->XML->Pipes->Pipe as $pipe) {
+        $pipe = (array) $pipe;
+        if($pipe["@attributes"]["class"] != "Fuel") continue;
+
+        // Fuel consuption (ENGINE RELATED, Not QF/JUMP)
+        foreach($pipe["States"]->State as $state) {
+          $state = (array) $state;
+          $v = (array) $state[0];
+
+          $this->params["fuelConso"][$state["@attributes"]["state"]] = $v["@attributes"]["value"];
+        }
+      }
+
+      // Parsing thrust
+    $thruster = (array) $this->XML->thrusters->thruster->{0};
+    $this->params["maxThrust"] = $thruster["@attributes"]["maxThrust"];
+    }
+
+
+  }
+
+?>
+

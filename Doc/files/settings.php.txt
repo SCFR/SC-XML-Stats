@@ -1,0 +1,36 @@
+<?php
+
+$_SETTINGS = array(
+  "DB" => array(
+    "host"     => "127.0.0.1",
+    "dbName"   => "SCParser",
+    "dbUser"   => "root",
+    "dbPass"   => "",
+    "prefix"   => "SCP_"
+  ),
+  "SOFT" => array(
+    "version"   => "0.1",
+    "jsonPath"  => "C:\Users\david\Documents\GitHub\SC-XML-Stats\json\\"
+  ),
+  "STARCITIZEN" => array(
+    "version" => "2.0",
+    "scripts" => "C:\Users\david\Documents\GitHub\SC-XML-Stats\\raw\Scripts",
+    "PATHS" => array(
+      "engine"        => "/Entities/Items/XML/Spaceships/Thrusters/",
+      "thruster"      => "/Entities/Items/XML/Spaceships/Thrusters/",
+      "shipLoadout"   => "/Loadouts/Vehicles/",
+      "ship"          => "/Entities/Vehicles/Implementations/Xml/",
+      "mount"         => "/Entities/Items/XML/Spaceships/Weapon_Mounts/",
+      "missile"       => "/Entities/Items/XML/Spaceships/Missile_Racks/",
+      "weapon"        => "/Entities/Items/XML/Spaceships/Weapons/",
+      "ammo"          => "/Entities/Items/XML/Spaceships/Ammo/",
+      "turret"        => "/Entities/Items/XML/Spaceships/Turrets/",
+      "shield"        => "/Entities/Items/XML/Spaceships/Shields/",
+      "radar"        => "/Entities/Items/XML/Spaceships/Radars/"
+    )
+  )
+);
+
+
+?>
+
