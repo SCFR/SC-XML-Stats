@@ -32,7 +32,11 @@
      */
     function __construct($item) {
       $this->raw = $item;
-      $this->itemName = (string) $item["itemName"];
+
+        if(isset($item["itemName"])) $this->itemName = (string) $item["itemName"];
+        elseif(isset($item["name"])) $this->itemName = (string) $item["name"];
+        else throw new Exception("NoNameFound!");
+
       $this->set_constructor();
     }
 
@@ -104,7 +108,7 @@
     private function rsearch($folder, $pattern, $not=false) {
       global $_SETTINGS;
       $fileInfo = false;
-      $folder = $_SETTINGS['STARCITIZEN']['scripts'].$folder;
+      $folder = $_SETTINGS['STARCITIZEN']['scripts']."\\".$_SETTINGS['STARCITIZEN']['version'].$folder;
       $dir = new RecursiveDirectoryIterator($folder);
       $ite = new RecursiveIteratorIterator($dir);
       $files = new RegexIterator($ite, $pattern, RegexIterator::GET_MATCH);
@@ -188,7 +192,7 @@
     public function saveJson($folder) {
 			global $_SETTINGS;
 
-      $path = $_SETTINGS["SOFT"]["jsonPath"].$folder;
+      $path = $_SETTINGS["SOFT"]["jsonPath"].$_SETTINGS["STARCITIZEN"]["version"]."\\".$folder;
       if(!is_dir($path)) mkdir($path, 0777, true);
 
 			file_put_contents($path.$this->itemName.".json", json_encode($this->getData()));

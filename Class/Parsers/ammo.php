@@ -35,11 +35,9 @@
     function setAmmoOfBox() {
       if($this->XML->ammoBox) {
         foreach($this->XML->ammoBox->param as $param) {
-          $param = (array) $param;
-
-          if($param['@attributes']['name'] == "max_ammo_count") $this->params['max_ammo_count'] = $param['@attributes']['value'];
-          elseif($param['@attributes']['name'] == "ammo_name") {
-            $arr['@attributes']['name'] = $param['@attributes']['value'];
+          if($param['name'] == "max_ammo_count") $this->params['max_ammo_count'] = $param['value'];
+          elseif($param['name'] == "ammo_name") {
+            $arr['name'] = $param['value'];
             $ammo = new SC_Ammo($arr);
             $this->params["AMMO"][] = $ammo->getData();
           }
@@ -52,17 +50,15 @@
      */
     function setMainAmmo() {
       $this->setItemMainStats();
-      $ar['name'] = $this->itemName;
+      $ar['itemName'] = $this->itemName;
 
       if(!$this->ammoBox) {
         foreach($this->XML->physics->param as $param) {
-          $param = (array) $param;
-          $ar[$param['@attributes']['name']] = $param['@attributes']['value'];
+          $ar[(string) $param['name']] = (string) $param['value'];
         }
 
         foreach($this->XML->params->param as $param) {
-          $param = (array) $param;
-          $ar[$param['@attributes']['name']] = $param['@attributes']['value'];
+          $ar[(string) $param['name']] = (string) $param['value'];
         }
       }
 

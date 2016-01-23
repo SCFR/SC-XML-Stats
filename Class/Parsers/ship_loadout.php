@@ -36,7 +36,18 @@
 		 * The main array in which we store the loadout/stats of the ship.
 		 * @var array
 		*/
-		private $loadout = array("HARDPOINTS");
+		private $loadout = array();
+		/**
+		 * False if is not a variant otherwise contains the name of the variant.
+		 * @var mixed boolean|string
+		*/
+		private $variantName = false;
+
+		/**
+		 * Hashmap of parts ID to parts Name
+		 * @var Array
+		*/
+		private $idToNames;
 
 		/**
 		 * Item constructor
@@ -50,7 +61,7 @@
 				$this->parseLoadout();
 			}
 			catch(Exception $e) {
-				$this->error = $e->getMessage();
+				$this->error[] = 'SELF: '.$e->getMessage();
 			}
 
 		}
@@ -88,6 +99,7 @@
 			if($xml->Parts) {
 				foreach($xml->Parts->Part as $part) {
 					$raw[(string) $part["name"]] = $part;
+					if(isset($part["id"])) $this->idToNames[$this->idMainPart((string) $part["id"])] = (string) $part["name"];
 					$this->recurHp($part,$raw);
 				}
 			}
@@ -144,6 +156,18 @@
 		}
 
 		/**
+     * I have no clue why but apparently RSI is  using 12yos to code.
+	 	 * idMain_Part === idMainPart in their logics...
+		 * So this function does the parsing of this part.
+     * @param String an IdMainPart or IdMain_Part
+	   * @return idMainPart
+     */
+		function idMainPart($name) {
+			if($name == "idMainPart" || $name == "idMain_Part") return "SCFRPARSEMAINPART";
+			else return $name;
+		}
+
+		/**
      * Main function to parse ShipImplementation
 		 * Starts of by calling { @link recurHp()} to build the array of items,
 		 * get main stats of the ship, then get worthwhile hardpoints into { @link loadout}
@@ -158,19 +182,66 @@
 				$mainVehicle[$name] = (string) $value;
 			}
 
-			$this->loadout += $mainVehicle;
-
-				// Get mains stats
 			$mainPart = reset($raw);
+				// Handle variant
+			if($this->variantName && $this->XMLShip->Modifications) {
+				$found = false;
+				foreach($this->XMLShip->Modifications->Modification as $mod) {
+					if($mod["name"] != $this->variantName) continue;
+					else {
+						$found = true;
+						if($mod->Elems) {
+							foreach($mod->Elems->Elem as $elem) {
+									// If we're in the main vehicle
+								if($elem["idRef"] == $mainVehicle["id"]) {
+									$mainVehicle[(string) $elem["name"]] = (string) $elem["value"];
+									continue;
+								}
 
+									// If we're not we go check in which one we are
+								$id = $this->idMainPart((string) $elem["idRef"]);
+								$name = isset($this->idToNames[$id]) ? $this->idToNames[$id] : false;
+									// Setting up our modifications
+								$elemName = (string) $elem["name"];
+								$elemValue = (string) $elem["value"];
+
+										// We want to destroy that part/hardpoint.
+									if($elemName == "part" &&  $elemValue == "0") unset($raw[$name]);
+									elseif($name && $raw[$name]) {
+											// Otherwise we wanna tweak something on the part/hardpoint
+										$raw[$name][(string) $elem["name"]] = (string) $elem["value"];
+									}
+							}
+						}
+						break;
+					}
+				}
+
+				if(!$found) throw new Exception("CantFindVariantModifications");
+			}
+
+			$tMass = 0;
 				// Get HardPoints that are worthwhile;
 			foreach($raw as $hpname => $hp) {
+
+					// Skip the parts we don't want.
+				if(isset($hp["skipPart"]) && (integer) $hp["skipPart"] === 1) continue;
+
+					// Set mass
+			  if(isset($hp["mass"])) $tMass += (integer) $hp["mass"];
+
+					// Get HardPointType
 				if($this->hpisOfType(array("Turret", "WeaponGun", "WeaponMissile"),$hp)) $this->loadout["HARDPOINTS"]["WEAPONS"][] = $this->hpReturnInfo($hp);
 				elseif($this->hpisOfType("MainThruster",$hp)) 			$this->loadout["HARDPOINTS"]["ENGINES"][] 	= $this->hpReturnInfo($hp);
 				elseif($this->hpisOfType("ManneuverThruster",$hp)) $this->loadout["HARDPOINTS"]["THRUSTERS"][] 	= $this->hpReturnInfo($hp);
 				elseif($this->hpisOfType("Shield",$hp))						 $this->loadout["HARDPOINTS"]["SHIELDS"][] 		= $this->hpReturnInfo($hp);
 				elseif($this->hpisOfType("Radar",$hp))						 $this->loadout["HARDPOINTS"]["RADARS"][] 			= $this->hpReturnInfo($hp);
 			}
+
+
+				// Get mains stats
+			$mainVehicle["mass"] = $tMass;
+			$this->loadout += $mainVehicle;
 
 		}
 
@@ -180,7 +251,7 @@
      */
 		function getShipPath() {
 			global $_SETTINGS;
-			$base = $_SETTINGS['STARCITIZEN']['scripts'].$_SETTINGS['STARCITIZEN']['PATHS']['ship'];
+			$base = $_SETTINGS['STARCITIZEN']['scripts']."\\".$_SETTINGS['STARCITIZEN']['version'].$_SETTINGS['STARCITIZEN']['PATHS']['ship'];
 			$file = false;
 
 				// The ship is a base one, or has, for some reason, a base implementation as a variant.
@@ -191,8 +262,9 @@
 					// OR : CONST_VARIANTNAMECLOSETOBASE. (eg : 300i vs 315p)
 					$t = preg_match("~^(.*)_([^_]*)$~U", $this->itemName, $match);
 					if($t) {
+						$this->variantName = $match[2];
 							// Easy form
-						if(file_exists($base.$match[1].".xml")) $file = $base.$match[1].".xml";
+						if(file_exists($base.$match[1].".xml"))	$file = $base.$match[1].".xml";
 						else {
 								// Or hard one
 							for($i = strlen($match[2]); $i > 0; $i--) {
@@ -241,7 +313,7 @@
 			}
 
 				// If we did get a parse on the implementation.
-			if($this->loadout && is_array($this->loadout["HARDPOINTS"])) {
+			if($this->loadout && isset($this->loadout["HARDPOINTS"]) && is_array($this->loadout["HARDPOINTS"])) {
 					// For each hardpoint types we parsed.
 				foreach($this->loadout["HARDPOINTS"] as $hpType => $hpList) {
 						// For each hardpoint in that type.
@@ -271,7 +343,6 @@
 								if(isset($s))	$put =	$s->returnHardpoint((string) $equipements[$hp["name"]]['portName']);
 							}
 							catch(Exception $e) {
-									echo $e->getMessage();
 									$this->error[] = $hpType." : ".$e->getMessage();
 							}
 
@@ -290,7 +361,7 @@
      */
 		function saveJson($folder) {
 			global $_SETTINGS;
-      $path = $_SETTINGS["SOFT"]["jsonPath"].$folder;
+      $path = $_SETTINGS["SOFT"]["jsonPath"].$_SETTINGS["STARCITIZEN"]["version"]."\\".$folder;
       if(!is_dir($path)) mkdir($path, 0777, true);
 
 			file_put_contents($path.$this->itemName.".json", json_encode($this->getData()));

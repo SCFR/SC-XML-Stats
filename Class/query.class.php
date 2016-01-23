@@ -51,7 +51,7 @@ Class SC_Query {
       switch($this->args[1]) {
         case "Ship":
           if($this->args[2] == "*") {
-            foreach (new DirectoryIterator($_SETTINGS['STARCITIZEN']['scripts'].$_SETTINGS['STARCITIZEN']['PATHS']['shipLoadout']) as $file) {
+            foreach (new DirectoryIterator($_SETTINGS['STARCITIZEN']['scripts']."\\".$_SETTINGS['STARCITIZEN']['version'].$_SETTINGS['STARCITIZEN']['PATHS']['shipLoadout']) as $file) {
               if($file->isDot() || $file->isDir()) continue;
               $s = new SC_Loadout($file->getPathname());
               $s->saveJson("ShipsLoadouts/");
@@ -62,7 +62,7 @@ Class SC_Query {
             }
           }
           else {
-            $s = new SC_Loadout($_SETTINGS['STARCITIZEN']['scripts'].$_SETTINGS['STARCITIZEN']['PATHS']['shipLoadout'].$this->args[2].".xml");
+            $s = new SC_Loadout($_SETTINGS['STARCITIZEN']['scripts']."\\".$_SETTINGS['STARCITIZEN']['version'].$_SETTINGS['STARCITIZEN']['PATHS']['shipLoadout'].$this->args[2].".xml");
             $s->saveJson("ShipsLoadouts/");
 
             $this->error  = $s->getError();

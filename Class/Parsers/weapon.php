@@ -102,9 +102,8 @@
     function getAmmos() {
       if(isset($this->XML->ammos)) {
         foreach((array) $this->XML->ammos as $ammo) {
-          $ammo = (array) $ammo;
           $sub = new SC_Ammo($ammo);
-          $ammos[] = $sub->getInfos();
+          $ammos[] = $sub->getData();
         }
         if($ammo) $this->ammo = $ammos;
       }
