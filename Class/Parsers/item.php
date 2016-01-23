@@ -58,6 +58,8 @@
           $this->params[(string) $value["name"]] = (string) $value["value"];
         }
       }
+
+      $this->params['itemName'] = $this->itemName;
     }
 
     /**

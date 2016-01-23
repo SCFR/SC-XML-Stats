@@ -50,6 +50,12 @@
 		private $idToNames;
 
 		/**
+		 * If the ships has an external patchFile or not.
+		 * @param String
+		 */
+		 private $patchFile;
+
+		/**
 		 * Item constructor
 		 * @param string $file The path of the ShipLoadout to open.
 		*/
@@ -96,7 +102,7 @@
      * @param Array $raw the array in which to output
      */
 		private function recurHp($xml,&$raw) {
-			if($xml->Parts) {
+			if(isset($xml->Parts)) {
 				foreach($xml->Parts->Part as $part) {
 					$raw[(string) $part["name"]] = $part;
 					if(isset($part["id"])) $this->idToNames[$this->idMainPart((string) $part["id"])] = (string) $part["name"];
@@ -159,7 +165,7 @@
      * I have no clue why but apparently RSI is  using 12yos to code.
 	 	 * idMain_Part === idMainPart in their logics...
 		 * So this function does the parsing of this part.
-     * @param String an IdMainPart or IdMain_Part
+     * @param String $name an IdMainPart or IdMain_Part
 	   * @return idMainPart
      */
 		function idMainPart($name) {
@@ -168,6 +174,63 @@
 		}
 
 		/**
+     * Handles the new/modified Elements of a Ship Modification (= Ship Variant)
+	 	 * Takes the current mod XML and the raw hardpoints and changes the needed values
+     * @param SimpleXMLElement &$mod The XML of the modification
+	   * @param Array the array containing the raw hardpoints
+     */
+		private function handleModElems(&$mod, &$raw, &$mainVehicle) {
+			if(isset($mod->Elems)) {
+				foreach($mod->Elems->Elem as $elem) {
+					// If we're in the main vehicle
+					if($elem["idRef"] == $mainVehicle["id"]) {
+						$mainVehicle[(string) $elem["name"]] = (string) $elem["value"];
+						continue;
+					}
+
+					// If we're not we go check in which one we are
+					$id = $this->idMainPart((string) $elem["idRef"]);
+					$name = isset($this->idToNames[$id]) ? $this->idToNames[$id] : false;
+					// Setting up our modifications
+					$elemName = (string) $elem["name"];
+					$elemValue = (string) $elem["value"];
+
+					// We want to destroy that part/hardpoint.
+					if($elemName == "part" &&  $elemValue == "0") unset($raw[$name]);
+					elseif($name && $raw[$name]) {
+						// Otherwise we wanna tweak something on the part/hardpoint
+						$raw[$name][(string) $elem["name"]] = (string) $elem["value"];
+					}
+				}
+			}
+		}
+
+		private function recurMerge(&$xml) {
+			foreach($xml->children() as $child) {
+				recurMerge($child);
+			}
+		}
+
+
+		/**
+     * Opens the XML of a modification, and merges the current ShipImplementation XML
+		 * with that of the Modification XML if need be.
+     * @param SimpleXMLElement &$mod the XML of the mod
+		 * @return Boolean if it added anything or not.
+     */
+		private function addNewXml(&$mod) {
+			global $_SETTINGS;
+			if(!isset($mod["patchFile"])) return false;
+			else {
+				$file = $_SETTINGS['STARCITIZEN']['scripts']."\\".$_SETTINGS['STARCITIZEN']['version'].$_SETTINGS['STARCITIZEN']['PATHS']['ship'].$mod["patchFile"].".xml";
+				if(file_exists($file)) {
+					$tXML = simplexml_load_file($file);
+					return $tXML;
+				}
+				else throw new Exception("ModificationPatchFileNotExist");
+			}
+		}
+		/**
      * Main function to parse ShipImplementation
 		 * Starts of by calling { @link recurHp()} to build the array of items,
 		 * get main stats of the ship, then get worthwhile hardpoints into { @link loadout}
@@ -175,50 +238,35 @@
 	   * @return Array
      */
 		function getImplementation() {
+			if($this->variantName) {
+				$found = false;
+				if(isset($this->XMLShip->Modifications)) {
+					foreach($this->XMLShip->Modifications->Modification as $mod) {
+						if($mod["name"] != $this->variantName) continue;
+						else {
+							$found = $mod;
+							$tXML = $this->addNewXml($mod);
+							break;
+						}
+					}
+				}
+				if($found === false || !isset($this->XMLShip->Modifications)) throw new Exception("CouldNotFinModification");
+			}
+
 				// Setting up
 			$raw = array();
-			$this->recurHp($this->XMLShip, $raw);
+			if(isset($found) && isset($tXML->Parts)) $this->recurHp($tXML, $raw);
+			else $this->recurHp($this->XMLShip, $raw);
+			//if(isset($found) && $found !== false) $this->recurHp($tXML, $raw);
+
 			foreach($this->XMLShip->attributes() as $name=>$value) {
 				$mainVehicle[$name] = (string) $value;
 			}
 
 			$mainPart = reset($raw);
 				// Handle variant
-			if($this->variantName && $this->XMLShip->Modifications) {
-				$found = false;
-				foreach($this->XMLShip->Modifications->Modification as $mod) {
-					if($mod["name"] != $this->variantName) continue;
-					else {
-						$found = true;
-						if($mod->Elems) {
-							foreach($mod->Elems->Elem as $elem) {
-									// If we're in the main vehicle
-								if($elem["idRef"] == $mainVehicle["id"]) {
-									$mainVehicle[(string) $elem["name"]] = (string) $elem["value"];
-									continue;
-								}
+			$this->handleModElems($found, $raw, $mainVehicle);
 
-									// If we're not we go check in which one we are
-								$id = $this->idMainPart((string) $elem["idRef"]);
-								$name = isset($this->idToNames[$id]) ? $this->idToNames[$id] : false;
-									// Setting up our modifications
-								$elemName = (string) $elem["name"];
-								$elemValue = (string) $elem["value"];
-
-										// We want to destroy that part/hardpoint.
-									if($elemName == "part" &&  $elemValue == "0") unset($raw[$name]);
-									elseif($name && $raw[$name]) {
-											// Otherwise we wanna tweak something on the part/hardpoint
-										$raw[$name][(string) $elem["name"]] = (string) $elem["value"];
-									}
-							}
-						}
-						break;
-					}
-				}
-
-				if(!$found) throw new Exception("CantFindVariantModifications");
-			}
 
 			$tMass = 0;
 				// Get HardPoints that are worthwhile;
@@ -228,7 +276,8 @@
 				if(isset($hp["skipPart"]) && (integer) $hp["skipPart"] === 1) continue;
 
 					// Set mass
-			  if(isset($hp["mass"])) $tMass += (integer) $hp["mass"];
+			  if(isset($hp["mass"])) {$tMass += (integer) $hp["mass"];
+				}
 
 					// Get HardPointType
 				if($this->hpisOfType(array("Turret", "WeaponGun", "WeaponMissile"),$hp)) $this->loadout["HARDPOINTS"]["WEAPONS"][] = $this->hpReturnInfo($hp);
@@ -267,8 +316,9 @@
 						if(file_exists($base.$match[1].".xml"))	$file = $base.$match[1].".xml";
 						else {
 								// Or hard one
-							for($i = strlen($match[2]); $i > 0; $i--) {
-								$try = str_split($match[2], $i);
+							for($i = strlen($match[2]); $i >= 0; $i--) {
+								if($i > 0) $try = str_split($match[2], $i);
+								else $try[0] = "";
 								$files = glob($base.$match[1]."_".$try[0]."*");
 								if($files && sizeof($files) == 1 && file_exists($files[0])) $file = $files[0];
 							}

@@ -11,7 +11,6 @@
     function __construct($item) {
       parent::__construct($item);
       $this->setPath();
-
       if($this->OK && $this->itemName) {
         $this->XML = $this->XML_OPEN($this->path);
         $this->setItemMainStats();
@@ -31,11 +30,15 @@
 
 
     function getSubItems() {
-
       // SubItems declared by parent
-      if(isset($this->raw['Items'])) {
-        foreach($this->raw['Items'] as $subitem) {
-          $this->createSub((array) $subitem);
+      if(isset($this->raw->Items)) {
+        foreach($this->raw->Items->Item as $subitem) {
+          try {
+            $this->createSub($subitem);
+          }
+          catch(Exception $e) {
+            // To do, is no weapon.
+          }
         }
 
       }
@@ -51,7 +54,7 @@
         foreach($xml->Items->Item as $key=>$item) {
           $notAWeap = false;
           try {
-            $this->createSub((array) $item);
+            $this->createSub($item);
             $this->rFindSelfSub($item);
           }
           catch(Exception $e) {
@@ -142,9 +145,9 @@
 
     function getPortMinMaxSize() {
       if($this->XML->portParams && $this->XML->portParams->ports->ItemPort) {
-        $port = (array) $this->XML->portParams->ports->ItemPort;
-        $this->minSize = $port['@attributes']['minsize'];
-        $this->maxSize = $port['@attributes']['maxsize'];
+        $port =  $this->XML->portParams->ports->ItemPort;
+        $this->minSize = (integer) $port['minsize'];
+        $this->maxSize = (integer) $port['maxsize'];
       }
     }
 
