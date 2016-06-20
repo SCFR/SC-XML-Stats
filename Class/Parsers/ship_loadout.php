@@ -61,6 +61,7 @@
 		*/
 		function __construct($file) {
 			try {
+				set_time_limit(30);
 				$this->file = $file;
 				$this->setFileName();
 				$this->setXml($file);
@@ -183,7 +184,7 @@
 			if(isset($mod->Elems)) {
 				foreach($mod->Elems->Elem as $elem) {
 					// If we're in the main vehicle
-					if($elem["idRef"] == $mainVehicle["id"]) {
+					if(isset($mainVehicle["id"]) && $elem["idRef"] == $mainVehicle["id"]) {
 						$mainVehicle[(string) $elem["name"]] = (string) $elem["value"];
 						continue;
 					}

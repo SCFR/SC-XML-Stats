@@ -109,8 +109,10 @@
      */
     private function rsearch($folder, $pattern, $not=false) {
       global $_SETTINGS;
+
+      if(strpos($folder,"/") === false) $folder .= "/".$folder;
       $fileInfo = false;
-      $folder = $_SETTINGS['STARCITIZEN']['scripts']."\\".$_SETTINGS['STARCITIZEN']['version'].$folder;
+      $folder = $_SETTINGS['STARCITIZEN']['scripts']."/".$_SETTINGS['STARCITIZEN']['version'].$folder;
       $dir = new RecursiveDirectoryIterator($folder);
       $ite = new RecursiveIteratorIterator($dir);
       $files = new RegexIterator($ite, $pattern, RegexIterator::GET_MATCH);

@@ -39,18 +39,22 @@
         // Fuel consuption (ENGINE RELATED, Not QF/JUMP)
         foreach($pipe["States"]->State as $state) {
           $state = (array) $state;
-          $v = (array) $state[0];
-
-          $this->params["fuelConso"][$state["@attributes"]["state"]] = $v["@attributes"]["value"];
+          if(isset($state[0])) {
+            $v = (array) $state[0];
+            $this->params["fuelConso"][$state["@attributes"]["state"]] = $v["@attributes"]["value"];
+          }
         }
       }
 
       // Parsing thrust
-    $thruster = (array) $this->XML->thrusters->thruster->{0};
-    $this->params["maxThrust"] = $thruster["@attributes"]["maxThrust"];
+      if(isset($this->XML->thrusters)) {
+        $thrusters = $this->XML->thrusters;
+        foreach($thrusters as $thruster) {
+          $thruster = (array) $thruster->thruster;
+          $this->params["totalMaxThrust"] += (integer) $thruster["@attributes"]["maxThrust"];
+          $this->params["thrusters"][] = (array) $thruster["@attributes"];
+        }
+      }
     }
-
-
   }
-
 ?>
