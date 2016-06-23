@@ -19,11 +19,23 @@
 
       if($this->OK && $this->returnExist($this->XML)) {
         $this->XML = simplexml_load_file($this->path);
+        $this->declareMain();
         $this->setItemMainStats();
         $this->parseEngine();
 
         $this->saveJson("Engines/");
       }
+    }
+
+    /**
+     * Sets defaults properties
+     */
+    private function declareMain() {
+      $defaults = array(
+        "totalMaxThrust" => 0,
+      );
+
+      $this->params = $defaults;
     }
 
     /**

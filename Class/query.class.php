@@ -59,6 +59,7 @@ Class SC_Query {
               if($s->getError()) $this->error[$file->getFilename()] = $s->getError();
               $this->data[$file->getFilename()]  = $s->getData();
               $this->sucess[$file->getFilename()]  = $s->getSucess();
+              $this->sucess["exec_time"] += $s->getSucess();
             }
           }
           else {

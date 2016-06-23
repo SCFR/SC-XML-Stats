@@ -28,10 +28,10 @@
 		 */
 		private $error;
 		/**
-		 * If the parse went ok.
-		 * @var Boolean
+		 * time it took for parsing
+		 * @var array
 		 */
-		private $sucess = true;
+		private $sucess = array("exec_time" => 0);
 		/**
 		 * The main array in which we store the loadout/stats of the ship.
 		 * @var array
@@ -62,10 +62,12 @@
 		function __construct($file) {
 			try {
 				set_time_limit(30);
+				$sucess = microtime(true);
 				$this->file = $file;
 				$this->setFileName();
 				$this->setXml($file);
 				$this->parseLoadout();
+				$this->sucess = microtime(true) - $sucess;
 			}
 			catch(Exception $e) {
 				$this->error[] = 'SELF: '.$e->getMessage();
@@ -243,15 +245,15 @@
 				$found = false;
 				if(isset($this->XMLShip->Modifications)) {
 					foreach($this->XMLShip->Modifications->Modification as $mod) {
-						if($mod["name"] != $this->variantName) continue;
-						else {
+						if($mod["name"] == $this->variantName || $mod["name"] == $this->itemName) {
 							$found = $mod;
 							$tXML = $this->addNewXml($mod);
 							break;
 						}
+						else continue;
 					}
 				}
-				if($found === false || !isset($this->XMLShip->Modifications)) throw new Exception("CouldNotFinModification");
+				if($found === false || !isset($this->XMLShip->Modifications)) throw new Exception("CouldNotFindModification");
 			}
 
 				// Setting up
